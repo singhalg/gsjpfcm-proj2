@@ -9,13 +9,12 @@
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
 
-def try_method():
-    print 'abs'
+
 
 
 
 def main():
-    pass
+    printme('hello !!')
 
 if __name__ == '__main__':
     main()
