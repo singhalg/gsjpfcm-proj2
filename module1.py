@@ -99,10 +99,10 @@ def geneBySiteCSV(file_name, pickleDump):
     geneSiteArr = np.array(geneSite)
 
     if pickleDump:
-        fhPickle = open('genexprimarySites.pkl', 'w')
+        fhPickle = open('gene_primarySites.pkl', 'w')
         pickle.dump(geneSite, fhPickle)
         fhPickle.close()
-        joblib.dump(geneSiteArr, 'genexprimarySiteArr.pkl')
+        joblib.dump(geneSiteArr, 'gene_primarySiteArr.pkl')
 
     for i in range(len(genes)):
         geneSiteStr = [str(n) for n in geneSite[i]]
