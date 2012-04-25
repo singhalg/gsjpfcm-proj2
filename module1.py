@@ -10,7 +10,9 @@
 #-------------------------------------------------------------------------------
 
 from sets import Set
-
+from sklearn.externals import joblib
+import pickle
+import numpy as np
 
 def geneBySite(file_name):
     fhin = open(file_name, 'rU')
@@ -59,39 +61,83 @@ def geneBySite(file_name):
 
 
 
-def geneBySiteCSV(file_name):
+def geneBySiteCSV(file_name, pickleDump):
     fhin = open(file_name, 'rU')
     data = fhin.readlines()
     fhin.close()
 
-    outfile_name = + 'geneByCancer.csv'
-    fhout = open(outfile_name, 'w')
-    geneSet = Set([])
 
+    geneSet = Set([])
 
     for line in data[1:]:
         flds = line.split(',')
         geneSet.add(flds[0])
 
-    print len(geneSet)
-
-
-    primarySites = pSite.keys()
-
-
-    firstline = '\t' + ','.join(primarySites) + '\n'
+    print '# of genes = ', len(geneSet)
+    genes = sorted(list(geneSet))
 
 
     pSite = geneBySite(file_name)
+    primarySites = sorted(pSite.keys())
 
+    fhout = open('geneByPrimSite.csv', 'w')
+    firstline = '\t' + ','.join(primarySites) + '\n'
+    fhout.write(firstline)
 
+    geneSite = []
+
+    for aGene in genes:
+        geneScore = []
+        for aSite in primarySites:
+            geneDict = pSite[aSite]
+            if aGene in geneDict:
+                geneScore.append(processGene(geneDict[aGene]))
+            else:
+                geneScore.append(0)
+        geneSite.append(geneScore)
+
+    geneSiteArr = np.array(geneSite)
+
+    if pickleDump:
+        fhPickle = open('geneXprimarySites.pkl', 'w')
+        pickle.dump(geneSite, fhPickle)
+        fhPickle.close()
+        joblib.dump(geneSiteArr, 'geneXprimarySiteArr.pkl')
+
+    for i in range(len(genes)):
+        geneSiteStr = [str(n) for n in geneSite[i]]
+        outline = genes[i]+ ','+ ','.join(geneSiteStr) + '\n'
+        fhout.write(outline)
+
+    fhout.close()
+
+    return primarySites, genes, geneSite, geneSiteArr
 
 def processGene(flds):
+    score = 0
+    dict = {'Complex - compound substitution':1,
+    'Complex - deletion inframe':1,
+    'Complex - frameshift':4,
+    'Complex - insertion inframe':1,
+    'Deletion - Frameshift':4,
+    'Deletion - In frame':1,
+    'Insertion - Frameshift':4,
+    'Insertion - In frame':1,
+    'Mutations':0,
+    'No detectable mRNA/protein':4,
+    'Nonstop extension':4,
+    'Substitution - Missense':1,
+    'Substitution - Nonsense':4,
+    'Substitution - coding silent':0,
+    'Unknown':0,
+    'Whole gene deletion':4
+    }
 
 
 
-
-    pass
+    for each in flds:
+        score+= dict[each]
+    return score
 
 def geneByHistology():
 
@@ -100,7 +146,9 @@ def geneByHistology():
 
 def main():
 
-    geneBySite('CosmicMutantExport_v58_150312.csv')
+  #  geneBySite('CosmicMutantExport_v58_150312.csv')
+    geneBySiteCSV('CosmicMutantExport_v58_150312.csv', True)
+
     #printme('hello !!')
 
 if __name__ == '__main__':
