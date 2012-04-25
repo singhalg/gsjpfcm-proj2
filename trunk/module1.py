@@ -81,7 +81,7 @@ def geneBySiteCSV(file_name, pickleDump):
     primarySites = sorted(pSite.keys())
 
     fhout = open('geneByPrimSite.csv', 'w')
-    firstline = '\t' + ','.join(primarySites) + '\n'
+    firstline = 'Genes,' + ','.join(primarySites) + '\n'
     fhout.write(firstline)
 
     geneSite = []
@@ -110,6 +110,7 @@ def geneBySiteCSV(file_name, pickleDump):
         fhout.write(outline)
 
     fhout.close()
+    print 'DONE'
 
     return primarySites, genes, geneSite, geneSiteArr
 
