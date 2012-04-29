@@ -14,6 +14,7 @@ from sklearn.externals import joblib
 import pickle
 import numpy as np
 import matplotlib.pyplot as plt
+import time
 
 def geneBySite(file_name1, file_name2):
     fhin = open(file_name1, 'rU')
@@ -408,7 +409,8 @@ def geneByIndividuals(file_name1, file_name2):
     return Individual
 
 def geneByIndividualsCSV(file_name1,file_name2, pickleDump):
-
+    wallStart = time.time()
+    cpuStart = time.clock()
     geneSet = Set([])
 
     fhin = open(file_name1, 'rU') # getting genes from file1
@@ -464,6 +466,11 @@ def geneByIndividualsCSV(file_name1,file_name2, pickleDump):
         fhout.write(outline)
 
     fhout.close()
+    CPUend = (time.clock() - cpuStart)
+    print 'Total elapsed CPU time = ', CPUend
+
+    wallEnd = (time.time() - wallStart)
+    print 'Total elapsed wall time = ', wallEnd
     print 'DONE'
 
 ##    return Individuals, genes, geneInd, geneIndArr
@@ -599,7 +606,14 @@ def myFun(list ):
     return list[:][1]
 
 
-
+def timeCalc():
+    wallStart = time.time()
+    cpuStart = time.clock()
+    time.sleep(10)
+    CPUend = (time.clock() - cpuStart)
+    print 'Total elapsed CPU time = ', CPUend
+    wallEnd = (time.time() - wallStart)
+    print 'Total elapsed wall time = ', wallEnd
 
 def main():
 
@@ -607,10 +621,11 @@ def main():
 ##    geneBySiteCSV('CosmicMutantExport_v58_150312.csv','CosmicInsMutExport_v58_150312.csv' , True)
 ##    geneByHistologyCSV('CosmicMutantExport_v58_150312.csv', 'CosmicInsMutExport_v58_150312.csv' , True)
 
-    geneByIndividualsCSV('CosmicMutantExport_v58_150312.csv', 'CosmicInsMutExport_v58_150312.csv' ,True)
+##    geneByIndividualsCSV('CosmicMutantExport_v58_150312.csv', 'CosmicInsMutExport_v58_150312.csv' ,False)
 ##    geneByIndividualsCSV('mut_small.csv', False)
 ##    sampleMap()
 ##    #printme('hello !!')
 ##    relevance()
+    timeCalc()
 if __name__ == '__main__':
     main()
