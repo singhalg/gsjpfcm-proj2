@@ -15,6 +15,7 @@ import numpy as np
 from sklearn.preprocessing import normalize as nm
 from sklearn.decomposition import PCA
 import pickle
+import math
 
 
 
@@ -28,9 +29,106 @@ def PCAnalysis():
 ##    print pca.explained_variance_ratio_
 
 
-def kmeansInd():
-    data = normalization('gene_IndividualsArr.pkl', 'top10Genes_Indiv.pkl')
+def kmeansEval():
 
+    data1, genes = normalization2('gene_IndividualsArr.pkl', 'top10Genes_Indiv.pkl')
+    data = data1.transpose()
+    print 'data.shape = ', data.shape
+    print '# dimensions = ', len(genes)
+    print 'len(data)',len(data)
+##    print data[3,13], data[4,13], data[5,13]
+    fhin = open('top10geneByInd.csv', 'rU')
+    samples = fhin.readline().split(',')[1:]
+    fhin.close()
+##    print 'last one = ', samples[-1]
+    samples = [x.strip() for x in samples]
+##    print 'last one = ', samples[-1]
+##    print len(samples)
+    kmeansResults = []
+    for i in range(2, 5):
+        kmeansResults.append(kmeansInd(data, i, 5))
+
+
+
+
+    fhout = open('kmeans_geneCluster_results.csv', 'w')
+    outline = 'k, sum of Distances, Cluster Dispersion, Least Dispersion\n'
+    fhout.write(outline)
+    for each in kmeansResults:
+#        print 'for k = ', each[0], ', sum of distances = ', each[2], ', and cluster dispersion = ', each[3], '. However, the least dispersion would be ', each[4]
+#        
+#        outline = str(each[0]) + ', ' + str(each[2])+ ', '+ str(each[3]) + ', '+ str(each[4]) + '\n'
+#        fhout.write(outline)
+        outline =  'k, Sum of distances, Cluster dispersion , Least dispersion \n'
+        fhout.write(outline)
+        outline = str(each[0]) + ', ' + str(each[2])+ ', '+ str(each[3]) + ', '+ str(each[4]) + '\n'
+        fhout.write(outline)
+        
+        for x in range(each[0]):
+            members = []  
+            fhout.write(str(each[0]) + '\n')               # size of x'th cluster
+            for z in range(len(genes)):
+                if each[1][z]==x:
+                    members.append(genes[z])
+            fhout.write(str(x) + ',' + ','.join(members) + '\n')
+    
+    
+    fhout.close()
+'''
+This method clusters the samples. We can then see if the clusters are enriched for any labels.
+
+'''
+def kmeansInd(data, kClusters, iters):
+##    data, genes = normalization2('gene_IndividualsArr.pkl', 'top10Genes_Indiv.pkl')
+##    print 'data.shape = ', data.shape
+##    print '# dimensions = ', len(genes)
+####    print data[3,13], data[4,13], data[5,13]
+##    fhin = open('top10geneByInd.csv', 'rU')
+##    samples = fhin.readline().split(',')[1:]
+##    fhin.close()
+####    print 'last one = ', samples[-1]
+##    samples = [x.strip() for x in samples]
+##    print 'last one = ', samples[-1]
+##    print len(samples)
+
+
+
+
+    kmeansModel = KMeans(k=kClusters, init='k-means++', n_init=iters, max_iter=500, tol=0.0001)
+    model = kmeansModel.fit(data)
+
+    labels = model.labels_
+##    print labels
+##    print model.score(data)
+    clustDist = model.transform(data)
+##    print clustDist[0]
+##    columnSums = np.sum(clustDist, axis=0)
+##
+##    print 'sum of all cluster distances = ', sum(columnSums)
+    distSum = 0
+    sumInst = 0
+    for i in range(kClusters):
+        for j in range(len(labels)):
+            if labels[j] ==i:
+                distSum+=clustDist[j][i]
+                sumInst+=1
+    print 'sum of all cluster distances = ', distSum
+    print 'total times we did addition = ', sumInst
+    labelSizes = []
+    for x in range(kClusters):
+        size = 0                    # size of x'th cluster
+        for aLabel in labels:
+            if aLabel==x:
+                size+=1
+        labelSizes.append(size)
+    dispersion = [(1/float(a))**2 for a in labelSizes]
+    dispSum = sum(dispersion)
+    leastDispersion = ( (1 / (len(data)/float(kClusters))    )**2)*kClusters
+    return kClusters, labels, distSum, dispSum, leastDispersion
+
+
+##    result = np.argmin(clustDist, 0)
+##    print result
 
 def kmeansIter():
 
@@ -77,7 +175,7 @@ def normalization(dataPickle, topGenesPickle):
 
 ##    print len(dataTrimmed)
 ##    print len(dataTrimmed[0])
-##    print genes
+    print genes
     dataArr = np.array(dataTrimmed, dtype='float')
     print 'm genes X n samples, shape of array = ', dataArr.shape
 
@@ -107,6 +205,33 @@ def normalization(dataPickle, topGenesPickle):
 ##    print zeroC1
 ##    print zeroC2
     return dataMatrix
+
+
+def normalization2(dataPickle, topGenesPickle):
+
+    data = joblib.load(dataPickle)
+    print 'starting data.shape = ', data.shape
+    top10Genes = joblib.load(topGenesPickle)
+    dataTrimmed = []
+    genes = []
+    samples = []
+
+    for each in top10Genes:
+        dataTrimmed.append(data[each[2]])
+        genes.append(each[0])
+
+##    print len(dataTrimmed)
+##    print len(dataTrimmed[0])
+##    print genes
+    dataArr = np.array(dataTrimmed, dtype='float')
+    print 'm genes X n samples, shape of array = ', dataArr.shape
+
+    dataMatrix = dataArr.transpose()
+    print 'n samples X m genes, shape of array = ',dataMatrix.shape
+    del data, dataTrimmed
+    return dataMatrix, genes
+
+
 
 def dataSurvey(topN, pickleDump):
 
@@ -237,6 +362,7 @@ def main():
 ##    dataSurvey2(2, False, 'geneByIndividuals.csv' )
 ##    kmeansIter()
 ##    normalization('gene_IndividualsArr.pkl', 'top10Genes_Indiv.pkl')
-    PCAnalysis()
+##    PCAnalysis()
+    kmeansEval()
 if __name__ == '__main__':
     main()
