@@ -8,19 +8,39 @@ from sklearn.decomposition import RandomizedPCA
 from sklearn.externals import joblib
 
 X = normalization('gene_IndividualsArr.pkl', 'top10Genes_Indiv.pkl')
-random_pca_data = normalization('gene_IndividualsArr.pkl', 'top10Genes_Indiv.pkl')
+random_pca_data_50 = normalization('gene_IndividualsArr.pkl', 'top10Genes_Indiv.pkl')
+random_pca_data_25 = normalization('gene_IndividualsArr.pkl', 'top10Genes_Indiv.pkl')
+random_pca_data_10 = normalization('gene_IndividualsArr.pkl', 'top10Genes_Indiv.pkl')
 pca_data = normalization('gene_IndividualsArr.pkl', 'top10Genes_Indiv.pkl')
 sparse_pca_data = normalization('gene_IndividualsArr.pkl', 'top10Genes_Indiv.pkl')
 kernel_pca_data = normalization('gene_IndividualsArr.pkl', 'top10Genes_Indiv.pkl')
 
-random_pca = RandomizedPCA(n_components=50)
-random_pca_model = random_pca.fit(random_pca_data)
-random_X_new = random_pca.fit_transform(X)
-print 'random_pca explained', random_pca.explained_variance_ratio_
-print 'random_pca explained sum', sum(random_pca.explained_variance_ratio_)
-joblib.dump(random_pca_model, 'random_pca_model.pkl')
-joblib.dump(random_pca.explained_variance_ratio_, 'random_pca.explained_variance_ratio_.pkl')
-joblib.dump(random_X_new, 'random_X_new.pkl')
+random_pca_50 = RandomizedPCA(n_components=50)
+random_pca_model_50 = random_pca_50.fit(random_pca_data_50)
+random_X_new_50 = random_pca_50.fit_transform(X)
+print 'random_pca_50 explained', random_pca_50.explained_variance_ratio_
+print 'random_pca_50 explained sum', sum(random_pca_50.explained_variance_ratio_)
+joblib.dump(random_pca_model_50, 'random_pca_model_50.pkl')
+joblib.dump(random_pca_50.explained_variance_ratio_, 'random_pca_50.explained_variance_ratio_.pkl')
+joblib.dump(random_X_new_50, 'random_X_new_50.pkl')
+
+random_pca_25 = RandomizedPCA(n_components=25)
+random_pca_model_25 = random_pca_25.fit(random_pca_data_25)
+random_X_new_25 = random_pca_25.fit_transform(X)
+print 'random_pca_25 explained', random_pca_25.explained_variance_ratio_
+print 'random_pca_25 explained sum', sum(random_pca_25.explained_variance_ratio_)
+joblib.dump(random_pca_model_25, 'random_pca_model_25.pkl')
+joblib.dump(random_pca_25.explained_variance_ratio_, 'random_pca_25.explained_variance_ratio_.pkl')
+joblib.dump(random_X_new_25, 'random_X_new_25.pkl')
+
+random_pca_10 = RandomizedPCA(n_components=10)
+random_pca_model_10 = random_pca_10.fit(random_pca_data_10)
+random_X_new_10 = random_pca_10.fit_transform(X)
+print 'random_pca_10 explained', random_pca_10.explained_variance_ratio_
+print 'random_pca_10 explained sum', sum(random_pca_10.explained_variance_ratio_)
+joblib.dump(random_pca_model_10, 'random_pca_model_10.pkl')
+joblib.dump(random_pca_10.explained_variance_ratio_, 'random_pca_10.explained_variance_ratio_.pkl')
+joblib.dump(random_X_new_10, 'random_X_new_10.pkl')
 
 pca = PCA(n_components=50)
 pca_model = pca.fit(pca_data)
