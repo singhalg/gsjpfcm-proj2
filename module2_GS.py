@@ -14,6 +14,7 @@ from sklearn.externals import joblib
 import numpy as np
 from sklearn.preprocessing import normalize as nm
 from sklearn.decomposition import PCA
+import pickle
 
 
 
@@ -183,6 +184,28 @@ def dataSurvey2(topN, pickleDump, filename):
 
 def myFun(list):
     return list[:][1]
+
+
+
+'''
+NEEDS TO IMPORT
+
+from sklearn.externals import joblib
+import pickle
+
+I have made 2 types of pickles, one using the pickle module and second using the joblib module.
+sklearn.externals.joblib module allows efficient pickling of numpy arrays. On the other hand, pickle module allows serialization of any object.
+@pickle: name of the pickle file, like gene_primarySiteArr.pkl
+@type: type of pickle, 1 for joblib; 2 for pickle.
+
+Most of the pickle files have been saved using joblib pickle. So try using type=1. If that does not work, try type=0.
+'''
+def loadPickle(pickle, type):
+    if type:
+        return joblib.load(pickle)
+    else:
+        fhPickle = open(pickle, 'rU')
+        return pickle.load(fhPickle)
 
 
 
