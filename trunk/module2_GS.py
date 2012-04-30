@@ -21,10 +21,16 @@ import pickle
 def PCAnalysis():
     data = normalization('gene_IndividualsArr.pkl', 'top10Genes_Indiv.pkl')
     print data.shape
+    print data[0,9]
     pca = PCA(n_components=168)
     pca.fit(data)
-    print pca.explained_variance_
-    print pca.explained_variance_ratio_
+##    print pca.explained_variance_
+##    print pca.explained_variance_ratio_
+
+
+def kmeansInd():
+    data = normalization('gene_IndividualsArr.pkl', 'top10Genes_Indiv.pkl')
+
 
 def kmeansIter():
 
@@ -51,13 +57,20 @@ def kmeans(data, seeds, nInit, step):
 ##inertia: float
 ##        The final value of the inertia criterion (sum of squared distances to
 ##        the closest centroid for all observations in the training set).
-
+'''
+This method does 2 jobs.
+First, it picks out the most mutated genes from the whole data, and secondly, it tries to normalize the data as per the row or column.
+I have commented the second part (normalization) since after normalization, most of the elements were getting reduced to zeros.
+'''
 def normalization(dataPickle, topGenesPickle):
-    top10Genes = joblib.load(topGenesPickle)
-    data = joblib.load(dataPickle)
 
+    data = joblib.load(dataPickle)
+    print 'starting data.shape = ', data.shape
+    top10Genes = joblib.load(topGenesPickle)
     dataTrimmed = []
     genes = []
+
+
     for each in top10Genes:
         dataTrimmed.append(data[each[2]])
         genes.append(each[0])
@@ -65,27 +78,35 @@ def normalization(dataPickle, topGenesPickle):
 ##    print len(dataTrimmed)
 ##    print len(dataTrimmed[0])
 ##    print genes
-    dataArr = np.array(dataTrimmed)
+    dataArr = np.array(dataTrimmed, dtype='float')
+    print 'm genes X n samples, shape of array = ', dataArr.shape
+
     dataMatrix = dataArr.transpose()
+    print 'n samples X m genes, shape of array = ',dataMatrix.shape
     del data, dataTrimmed
-    return dataMatrix
 
 
+##
+##
 ##    dataMatrixNorm = nm(dataMatrix, axis=0, copy=True)
 ##    zeroC1 = 0
 ##    for each in dataMatrix:
 ##        for i in each:
-##            if i == 0:
+##            if i != 0:
 ##                zeroC1+=1
 ##    zeroC2 = 0
 ##    for each in dataMatrixNorm:
 ##        for i in each:
-##            if i == 0:
+##            if i != 0:
 ##                zeroC2+=1
 ##    sp = dataMatrixNorm.shape
 ##    print '# total elements in matrix = ', str(sp[0]*sp[1])
+##
+##    print dataMatrix[0]
+##    print dataMatrixNorm[0]
 ##    print zeroC1
 ##    print zeroC2
+    return dataMatrix
 
 def dataSurvey(topN, pickleDump):
 
@@ -215,7 +236,7 @@ def main():
 ##    dataSurvey(5, True )
 ##    dataSurvey2(2, False, 'geneByIndividuals.csv' )
 ##    kmeansIter()
-##    normalization()
+##    normalization('gene_IndividualsArr.pkl', 'top10Genes_Indiv.pkl')
     PCAnalysis()
 if __name__ == '__main__':
     main()
