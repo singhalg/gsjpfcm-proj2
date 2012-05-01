@@ -17,6 +17,16 @@ from sklearn.decomposition import PCA
 import pickle
 import math
 
+def PCApickles():
+
+##    random_pca_data = normalization2('gene_IndividualsArr.pkl', 'top10Genes_Indiv.pkl')
+##    print random_pca_data[0].shape
+##    random_pca_data_50 = random_pca_data[0].transpose()
+##    print random_pca_data_50.shape
+    randPCA_genes_reduced = joblib.load('random_X_new_50.pkl')
+    KM = KMeans(k=20, n_init=10, init='k-means++', max_iter=300, tol=step)
+    model = KM.fit(data)
+
 
 
 def PCAnalysis():
@@ -31,11 +41,16 @@ def PCAnalysis():
 
 def kmeansEval():
 
-    data1, genes = normalization2('gene_IndividualsArr.pkl', 'top10Genes_Indiv.pkl')
-    data = data1.transpose()
+##    randPCA_genes_reduced = joblib.load('random_X_new_50.pkl')
+##    FICA_genes_reduced = joblib.load('fast_ica_X_new.pkl')
+    sparsePCA_genes_reduced = joblib.load('sparse_pca_X_new.pkl')
+##    data1, genes = normalization2('gene_IndividualsArr.pkl', 'top10Genes_Indiv.pkl')
+    data = sparsePCA_genes_reduced
+
+
     print 'data.shape = ', data.shape
-    print '# dimensions = ', len(genes)
-    print 'len(data)',len(data)
+    print '# dimensions = ', data.shape[1]
+    print '# samples = ',len(data)
 ##    print data[3,13], data[4,13], data[5,13]
     fhin = open('top10geneByInd.csv', 'rU')
     samples = fhin.readline().split(',')[1:]
@@ -45,36 +60,38 @@ def kmeansEval():
 ##    print 'last one = ', samples[-1]
 ##    print len(samples)
     kmeansResults = []
-    for i in range(1, 21):
-        k = i*5
-        kmeansResults.append(kmeansInd(data, k, 20))
+    for i in range(3, 60):
+        k = i
+        kmeansResults.append(kmeansInd(data, k, 25))
 
 
 
-
-    fhout = open('kmeans_geneCluster_results.csv', 'w')
+    fh = open('kmeans_IndClusters_sparsePCA.csv', 'w')
+##    fhout = open('kmeans_geneCluster_results.csv', 'w')
     outline = 'k, sum of Distances, Cluster Dispersion, Least Dispersion\n'
-    fhout.write(outline)
+##    fhout.write(outline)
+    fh.write(outline)
     for each in kmeansResults:
-#        print 'for k = ', each[0], ', sum of distances = ', each[2], ', and cluster dispersion = ', each[3], '. However, the least dispersion would be ', each[4]
-#        
-#        outline = str(each[0]) + ', ' + str(each[2])+ ', '+ str(each[3]) + ', '+ str(each[4]) + '\n'
-#        fhout.write(outline)
-#        outline =  'k, Sum of distances, Cluster dispersion , Least dispersion \n'
-#        fhout.write(outline)
+        print 'for k = ', each[0], ', sum of distances = ', each[2], ', and cluster dispersion = ', each[3], '. However, the least dispersion would be ', each[4]
+#
         outline = str(each[0]) + ', ' + str(each[2])+ ', '+ str(each[3]) + ', '+ str(each[4]) + '\n'
-        fhout.write(outline)
-          
-        fhout.write('k = '+ str(each[0]) + '\n')
-        for x in range(each[0]):
-            members = []              # size of x'th cluster
-            for z in range(len(genes)):
-                if each[1][z]==x:
-                    members.append(genes[z])
-            fhout.write(str(x) + ',' + ','.join(members) + '\n')
-    
-    
-    fhout.close()
+        fh.write(outline)
+##        outline =  'k, Sum of distances, Cluster dispersion , Least dispersion \n'
+##        fh.write(outline)
+##        outline = str(each[0]) + ', ' + str(each[2])+ ', '+ str(each[3]) + ', '+ str(each[4]) + '\n'
+##        fhout.write(outline)
+##
+##        fhout.write('k = '+ str(each[0]) + '\n')
+##        for x in range(each[0]):
+##            members = []              # size of x'th cluster
+##            for z in range(len(genes)):
+##                if each[1][z]==x:
+##                    members.append(genes[z])
+##            fhout.write(str(x) + ',' + ','.join(members) + '\n')
+##
+##
+##    fhout.close()
+    fh.close()
 '''
 This method clusters the samples. We can then see if the clusters are enriched for any labels.
 
@@ -95,7 +112,7 @@ def kmeansInd(data, kClusters, iters):
 
 
 
-    kmeansModel = KMeans(k=kClusters, init='k-means++', n_init=iters, max_iter=500, tol=0.0001)
+    kmeansModel = KMeans(k=kClusters, init='k-means++', n_init=iters, max_iter=500, tol=0.0005)
     model = kmeansModel.fit(data)
 
     labels = model.labels_
@@ -365,5 +382,6 @@ def main():
 ##    normalization('gene_IndividualsArr.pkl', 'top10Genes_Indiv.pkl')
 ##    PCAnalysis()
     kmeansEval()
+##    PCApickles()
 if __name__ == '__main__':
     main()
